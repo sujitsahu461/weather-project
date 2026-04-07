@@ -1,8 +1,7 @@
 // ===== CONFIG =====
-const API_KEY = "45be50cf9cb9f60df8be579d9905f94c";
-const W_URL = "https://api.openweathermap.org/data/2.5/weather";
-const F_URL = "https://api.openweathermap.org/data/2.5/forecast";
-const AQ_URL = "https://api.openweathermap.org/data/2.5/air_pollution";
+const W_URL = "/api/weather";
+const F_URL = "/api/forecast";
+const AQ_URL = "/api/aqi";
 
 // ===== DOM =====
 const form = document.getElementById('searchForm');
@@ -215,18 +214,18 @@ function drawSpark(canvas, values){
 // ===== FETCHING =====
 async function fetchAllByCity(city){
   statusEl.textContent = 'Loading…';
-  const url = `${W_URL}?q=${encodeURIComponent(city)}&appid=${API_KEY}&units=${units}`;
+  const url = `${W_URL}?q=${encodeURIComponent(city)}&units=${units}`;
   const w = await getJSON(url);
   const { lon, lat } = w.coord;
 
   // forecast for 5-day
-  const f = await getJSON(`${F_URL}?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=${units}`);
+  const f = await getJSON(`${F_URL}?lat=${lat}&lon=${lon}&units=${units}`);
   // forecast pop (next 3h)
   const next = f.list && f.list[0];
   const pop = next ? Math.round((next.pop||0)*100) : 0;
 
   // AQI
-  const a = await getJSON(`${AQ_URL}?lat=${lat}&lon=${lon}&appid=${API_KEY}`);
+  const a = await getJSON(`${AQ_URL}?lat=${lat}&lon=${lon}`);
   const aqi = a.list && a.list[0] ? a.list[0].main.aqi : 0;
 
   return { w, pop, aqi, f };
@@ -252,10 +251,10 @@ geoBtn.addEventListener('click', ()=>{
   navigator.geolocation.getCurrentPosition(async pos=>{
     try{
       const { latitude:lat, longitude:lon } = pos.coords;
-      const w = await getJSON(`${W_URL}?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=${units}`);
+      const w = await getJSON(`${W_URL}?lat=${lat}&lon=${lon}&units=${units}`);
       // small fetch for forecast & aqi
-      const f = await getJSON(`${F_URL}?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=${units}`);
-      const a = await getJSON(`${AQ_URL}?lat=${lat}&lon=${lon}&appid=${API_KEY}`);
+      const f = await getJSON(`${F_URL}?lat=${lat}&lon=${lon}&units=${units}`);
+      const a = await getJSON(`${AQ_URL}?lat=${lat}&lon=${lon}`);
       const aqi = a.list && a.list[0] ? a.list[0].main.aqi : 0;
       const next = f.list && f.list[0];
       const pop = next ? Math.round((next.pop||0)*100) : 0;
